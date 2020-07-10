@@ -13,26 +13,33 @@ var LOCATION_Y_MIN = 130;
 var LOCATION_Y_MAX = 630;
 var PIN_WIDTH = 65;
 var PIN_HEIGHT = 77;
-var NUMBER_ADS = 8; // Ads - обьявления (без сокращения)
+var NUMBER_ADS = 8;
+var MIN_PRICE = 1;
+var MAX_PRICE = 5000;
+var MIN_ROOMS = 1;
+var MAX_ROOMS = 100;
+var MIN_GUESTS = 0;
+var MAX_GUESTS = 3;
+
+var filtersContainer = document.querySelector('.map__filters-container');
 
 
 var getRandomInRange = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-var arrayRandElement = function (arr) {
+var getRandomElementFromArray = function (array) {
   var rand = getRandomInRange(0, newArray.length - 1);
-  return arr[rand];
+  return array[rand];
 };
 
-var cutArray = function (arr) { // понял что будет так, мог ошибиться запросто
-  var newArray = arr.slice([0], [getRandomInRange(1, newArray.length)]); // возвращает новый массив, в который копирует элементы, начиная с индекса start и до end
-  // newArray.length = getRandomInRange(1, newArray.length); // строчка будет не нужна, передать в slice
+var cutArray = function (array) {
+  var newArray = array.slice((0, getRandomInRange(1, newArray.length)); // возвращает новый массив, в который копирует элементы, начиная с индекса start и до end
   return newArray;
 };
 
-var shuffleArray = function (arr) { //
-  var newArray = arr.slice();
+var shuffleArray = function (array) { //
+  var newArray = array.slice();
   for (var i = 0; i < newArray.length; i++) {
     var j = getRandomInRange(0, newArray.length - 1);
     var temp = newArray[i];
@@ -43,8 +50,8 @@ var shuffleArray = function (arr) { //
   return newArray;
 };
 
-var createAd = function (number) {
-  var arrAds = [];
+var createAds = function (number) {
+  var arrayAds = [];
 
   for (var i = 0; i < number; i++) {
     var locationX = getRandomInRange(LOCATION_X_MIN, LOCATION_X_MAX);
@@ -56,12 +63,12 @@ var createAd = function (number) {
       offer: {
         title: 'Заголовок',
         address: locationX + ', ' + locationY,
-        price: getRandomInRange(1, 5000),
-        type: arrayRandElement(TYPES),
-        rooms: getRandomInRange(1, 100),
-        guests: getRandomInRange(0, 3),
-        checkin: arrayRandElement(CHECKINS),
-        checkout: arrayRandElement(CHECKOUTS),
+        price: getRandomInRange(MIN_PRICE, MAX_PRICE),
+        type: getRandomElementFromArray(TYPES),
+        rooms: getRandomInRange(MIN_ROOMS, MAX_ROOMS),
+        guests: getRandomInRange(MIN_GUESTS, MAX_GUESTS),
+        checkin: getRandomElementFromArray(CHECKINS),
+        checkout: getRandomElementFromArray(CHECKOUTS),
         features: shuffleArray(FEATURES),
         description: 'Описание',
         photos: cutArray(shuffleArray(PHOTOS)),
@@ -71,9 +78,9 @@ var createAd = function (number) {
         y: locationY,
       },
     };
-    arrAds.push(ad);
+    arrayAds.push(ad);
   }
-  return arrAds;
+  return arrayAds;
 };
 
 var removeMapFaded = function () {
@@ -96,11 +103,69 @@ var createPin = function (ad) {
 
 var mapPins = document.querySelector('.map__pins');
 var fragment = document.createDocumentFragment();
-var arrAds = createAd(NUMBER_ADS);
-for (var i = 0; i < arrAds.length; i++) {
-  fragment.appendChild(createPin(arrAds[i]));
+var arrayAds = createAds(NUMBER_ADS);
+for (var i = 0; i < arrayAds.length; i++) {
+  fragment.appendChild(createPin(arrayAds[i]));
 }
 mapPins.appendChild(fragment);
 
 removeMapFaded();
+
+
+// 2 часть задания (адская смесь гугла, моих представлений и чужих кодов,
+// в целом понимание слабое, пиши комменты подробнее плис)
+
+
+var getCardFeatures = function (offersClasses, template) {
+  var featuresList = template.querySelectorAll('.popup__feature');
+  for (var i = 0; i < featuresList.length; i++) {
+    featuresList[i].classList.add('hidden');
+
+    offersClasses.forEach(function (entry) {
+      if (featuresList[i].classList.contains(entry)) {
+        featuresList[i].classList.remove('hidden');
+      }
+    });
+  }
+};
+
+var createOfferCard = function (item) {
+  var cardTemplate = document.querySelector('#card').content;
+  var card = cardTemplate.cloneNode(true);
+  var cardPhotos = card.querySelector('.popup__photos');
+  var photoImg = cardPhotos.querySelector('.popup__photo');
+  var featuresClasses = generateClassesArray(item.offer.features, 'popup__feature--'); ??
+  card.querySelector('.popup__title').textContent = item.offer.title;
+  card.querySelector('.popup__text--address').textContent = item.offer.address;
+  card.querySelector('.popup__text--price').textContent = item.offer.price + '₽/ночь';
+  card.querySelector('.popup__type').textContent = TypesMap[item.offer.type];
+  card.querySelector('.popup__text--capacity').textContent = item.offer.rooms + ' комнаты для ' + item.offer.guests + ' гостей';
+  card.querySelector('.popup__text--time').textContent = 'Заезд после ' + item.offer.checkin + ', выезд до ' + item.offer.checkout;
+  card.querySelector('.popup__description').textContent = item.offer.description;
+  card.querySelector('.popup__photos').src = 'none';
+  card.querySelector('.popup__avatar').src = item.author.avatar;
+
+  getCardFeatures(featuresClasses, card);
+
+  cardPhotos.innerHTML = '';
+
+  for (var i = 0; i < item.offer.photos.length; i++) {
+    var image = photoImg.cloneNode(true);
+    image.src = item.offer.photos[i];
+    cardPhotos.appendChild(image);
+  }
+
+  return card;
+};
+
+var renderCard = function (item) {
+  var fragment = document.createDocumentFragment();
+  fragment.appendChild(createOfferCard(item));
+
+  return fragment;
+};
+
+var similarAds = generateSimilarAds(OFFERS_COUNT);
+pinsMap.appendChild(renderAllPins(similarAds));
+map.insertBefore(renderCard(similarAds[0]), filtersContainer);
 
