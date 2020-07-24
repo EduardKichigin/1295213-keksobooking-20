@@ -1,27 +1,43 @@
 'use strict';
-(function () {
-  var errorHandler = function (errorMessage) {
-    var node = document.createElement('div');
-    node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
-    node.style.position = 'absolute';
-    node.style.left = 0;
-    node.style.right = 0;
-    node.style.fontSize = '30px';
 
-    node.textContent = errorMessage;
-    document.body.insertAdjacentElement('afterbegin', node);
+(function () {
+  var TIMEOUT_MS = 5000;
+  var RESPONSE_TYPE = 'json';
+  var URL_GET = 'https://javascript.pages.academy/keksobooking/data';
+  var URL_POST = 'https://javascript.pages.academy/keksobooking';
+  var STATUS = {
+    OK: 200,
+    BAD_REQUEST: 400,
+    UNAUTHORIZED: 401,
+    FORBIDDEN: 403,
+    NOT_FOUND: 404,
+    INTERNAL_SERVER_ERROR: 500
   };
 
-  var load = function (url, onSuccess, onError) {
+  var getResponse = function (xhr, onSuccessFunc, onErrorFunc) {
+    var error;
+    switch (xhr.status) {
+      case STATUS.OK: onSuccessFunc(xhr.response); break;
+      case STATUS.BAD_REQUEST: error = 'Неверный запрос'; break;
+      case STATUS.UNAUTHORIZED: error = 'Пользователь не авторизован'; break;
+      case STATUS.NOT_FOUND: error = 'При запросе на сервер не найдено объявлений'; break;
+      case STATUS.INTERNAL_SERVER_ERROR:
+        error = '"Внутренняя ошибка сервера". Сервер столкнулся с ситуацией, которую он не знает как обработать. '; break;
+      default: error = 'Cтатус ответа: : ' + xhr.status + ' ' + xhr.statusText;
+    }
+    if (error) {
+      onErrorFunc(error);
+    }
+  };
+
+  var getRequest = function (metod, url, onLoad, onError, data) {
     var xhr = new XMLHttpRequest();
-    xhr.responseType = 'json';
+    xhr.timeout = TIMEOUT_MS;
+    xhr.responseType = RESPONSE_TYPE;
     xhr.addEventListener('load', function () {
-      if (xhr.status === 200) {
-        onSuccess(xhr.response);
-      } else {
-        onError('Cтатус ответа: ' + xhr.status + ' ' + xhr.statusText);
-      }
+      getResponse(xhr, onLoad, onError);
     });
+
     xhr.addEventListener('error', function () {
       onError('Произошла ошибка соединения');
     });
@@ -30,37 +46,19 @@
       onError('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
     });
 
-    xhr.timeout = 10000;
-
-    xhr.open('GET', url);
-    xhr.send();
-  };
-
-
-  var upload = function (data, onSuccess, onError) {
-    var xhr = new XMLHttpRequest();
-
-    xhr.addEventListener('load', function () {
-      if (xhr.status === 200) {
-        onSuccess(xhr.response);
-      } else {
-        onError('Cтатус ответа: ' + xhr.status + ' ' + xhr.statusText);
-      }
-    });
-
-    xhr.addEventListener('error', function () {
-      onError('Произошла ошибка отправки данных');
-    });
-
-    xhr.open('POST', 'https://javascript.pages.academy/keksobooking');
+    xhr.open(metod, url);
     xhr.send(data);
   };
 
+
   window.backend = {
-    load: load,
-    upload: upload,
-    errorHandler: errorHandler
+    load: function (onLoad, onError) {
+      getRequest('GET', URL_GET, onLoad, onError);
+    },
+    upload: function (data, onLoad, onError) {
+      getRequest('POST', URL_POST, onLoad, onError, data);
+    }
+
   };
-})();
-
-
+}
+)();

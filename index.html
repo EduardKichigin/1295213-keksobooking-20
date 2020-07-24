@@ -204,7 +204,7 @@
 
   <!-- Модальное окно с информацией об объявлении -->
   <template id="card">
-    <article class="map__card popup">
+    <article class="map__card popup hidden">
       <img src="img/avatars/user01.png" class="popup__avatar" width="70" height="70" alt="Аватар пользователя">
       <button type="button" class="popup__close">Закрыть</button>
       <h3 class="popup__title">Уютное гнездышко для молодоженов</h3>
@@ -248,12 +248,11 @@
     </div>
   </template>
   <script src="js/backend.js"></script>
-  <script src="js/utils.js"></script>
-  <script src="js/map.js"></script>
+  <script src="js/data.js"></script>
   <script src="js/pin.js"></script>
-  <script src="js/form.js"></script>
   <script src="js/card.js"></script>
-  <script src="js/filter.js"></script>
-  <script src="js/move.js"></script>
+  <script src="js/form.js"></script>
+  <script src="js/pinDrag.js"></script>
+  <script src="js/map.js"></script>
 </body>
 </html>
