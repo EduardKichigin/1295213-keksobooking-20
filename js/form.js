@@ -37,8 +37,8 @@
   });
 
   var removeOptions = function () {
-    for (var numOpt = capacityInput.length - 1; numOpt >= 0; numOpt--) {
-      capacityInput.options[numOpt].remove();
+    for (var i = capacityInput.length - 1; i >= 0; i--) {
+      capacityInput.options[i].remove();
     }
   };
 

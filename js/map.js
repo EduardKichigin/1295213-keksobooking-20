@@ -40,15 +40,15 @@
 
   var deletePin = function () {
     var offerPin = document.querySelectorAll('.map__pin');
-    for (var pn = offerPin.length; pn > 1; pn--) {
-      offerPin[pn - 1].remove();
+    for (var i = offerPin.length; i > 1; i--) {
+      offerPin[i - 1].remove();
     }
   };
 
   var deleteCard = function () {
     var mapCard = document.querySelectorAll('.map__card');
-    for (var cn = mapCard.length; cn > 0; cn--) {
-      mapCard[cn - 1].remove();
+    for (var i = mapCard.length; i > 0; i--) {
+      mapCard[i - 1].remove();
     }
   };
 

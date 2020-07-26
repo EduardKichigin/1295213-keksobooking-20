@@ -36,8 +36,8 @@
     var fragment = document.createDocumentFragment();
     var offersNumber = offersList.length > CONST.MAX_AMOUNT_OF_PINS ? CONST.MAX_AMOUNT_OF_PINS : offersList.length;
 
-    for (var index = 0; index < offersNumber; index++) {
-      fragment.appendChild(getFragmentWithPin(offersList[index]));
+    for (var i = 0; i < offersNumber; i++) {
+      fragment.appendChild(getFragmentWithPin(offersList[i]));
     }
     document.querySelector('.map__pins').appendChild(fragment);
   };

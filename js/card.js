@@ -4,13 +4,13 @@
   var CONST = window.data.CONST;
 
   var addMorePhotos = function (offerCard, elementCard) {
-    for (var index = 1; index < offerCard.offer.photos.length; index++) {
+    for (var i = 1; i < offerCard.offer.photos.length; i++) {
       var newElement = document.createElement('img');
-      newElement.src = offerCard.offer.photos[index];
+      newElement.src = offerCard.offer.photos[i];
       newElement.classList.add('popup__photo');
       newElement.width = CONST.OFFER_PHOTO_WIDTH;
       newElement.height = CONST.OFFER_PHOTO_HEIGHT;
-      newElement.alt = 'Фотография жилья ' + (index + 1);
+      newElement.alt = 'Фотография жилья ' + (i + 1);
       elementCard.querySelector('.popup__photos').appendChild(newElement);
     }
   };
@@ -113,8 +113,8 @@
   window.card = {
     getPinsListener: function (currentOffers) {
       var shNumber = currentOffers.length > 5 ? 5 : currentOffers.length;
-      for (var shNum = 1; shNum <= shNumber; shNum++) {
-        showOffercard(shNum);
+      for (var i = 1; i <= shNumber; i++) {
+        showOffercard(i);
       }
     },
     getFragmentWithCards: getFragmentWithCards
